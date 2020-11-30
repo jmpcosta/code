@@ -1,0 +1,35 @@
+{
+  "title": "Electron App",
+  "version": "0.0.1",
+  "description": "First Electron App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "homepage": "http://os-api.org",
+  "license": "MIT",
+  "keywords": [
+    "electron"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/os-api/osapi.git"
+  },
+  "devDependencies": {
+    "electron-packager": "^5.1.1",
+    "electron-prebuilt": "^0.35.1"
+  },
+  "jspm": {
+    "directories": {
+      "baseURL": "src"
+    },
+    "dependencies": {
+
+    },
+    "devDependencies": {
+
+      "core-js": "npm:core-js@^1.1.4"
+    }
+  }
+}
