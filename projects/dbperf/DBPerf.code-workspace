@@ -1,0 +1,10 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"java.home": "/usr/lib/jvm/java-15-openjdk-amd64"
+	}
+}
