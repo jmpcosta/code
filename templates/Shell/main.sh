@@ -3,7 +3,7 @@
 # -----------------------------------------------------------
 #
 # Purpose: This script is intended to serve as a template 
-#          for scripts that processe parameters.
+#          for scripts that processes parameters.
 #
 # Usage:   <script> command subcommand parameters
 #
