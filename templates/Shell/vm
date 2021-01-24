@@ -1,0 +1,200 @@
+#!/bin/bash
+
+# -----------------------------------------------------------
+#
+# Purpose: Script to manage VMs
+#
+# Usage:   <script> command parameters
+#
+# Author:  Joao Costa
+# Repo:    https://github.com/jmpcosta/code
+#
+# -----------------------------------------------------------
+
+
+
+# -----------------------------------------------------------
+#
+# Global Variables
+#
+# -----------------------------------------------------------
+
+
+
+# -----------------------------------------------------------
+#
+# Derived Variables
+#
+# -----------------------------------------------------------
+
+SCRIPT_NAME=$(basename "$0")
+
+# -----------------------------------------------------------
+#
+# Constants 
+#
+# -----------------------------------------------------------
+
+# Error codes
+ERROR_NONE=0
+
+# -----------------------------------------------------------
+#
+#
+# Functions
+#
+#
+# -----------------------------------------------------------
+
+
+
+# -----------------------------------------------------------
+# Inform the operator about the script command line options
+# -----------------------------------------------------------
+
+display_usage()
+{
+ printf "\n\t${SCRIPT_NAME}\t[ start | stop | status | info | connect ] <VM name>\n"
+ printf "\n\tWhere:\n"
+ printf "\t\tstart:\t\tStart VM\n"
+ printf "\n"
+ printf "\t\tstop:\t\tStop VM\n"
+ printf "\n"
+ printf "\t\tinfo:\t\tVM details\n"
+ printf "\n"
+ printf "\t\tconnect:\tConnect to VM\n"
+ printf "\n"
+ printf "\t\tstatus:\t\tDisplay VM status\n"
+ printf "\n"
+ 
+ return 0
+}
+
+
+# -----------------------------------------------------------
+# Execute specific command
+# -----------------------------------------------------------
+
+
+
+connect_vm()
+{
+ typeset    vm="$1"
+
+ virt-viewer -f "$vm" &
+
+ return $?
+}
+
+start_vm()
+{
+ typeset -i rc=$ERROR_NONE
+ typeset    vm="$1"
+
+ virsh start "$vm"
+ rc=$?
+
+ # If VM started, connect to it
+ if [ $rc -eq 0 ]; then 
+      connect_vm "$vm"
+      rc=$?
+ fi
+
+ return $rc
+}
+
+stop_vm()
+{
+ typeset -i rc=$ERROR_NONE
+ typeset    vm="$1"
+
+ virsh shutdown "$vm"
+ rc=$?
+
+ return $rc
+}
+
+status_vm()
+{
+ typeset -i rc=$ERROR_NONE
+ typeset    vm="$1"
+
+ if [ -z "$vm" ]; then
+      vm="--all"
+ fi
+
+ virsh list "$vm"
+ rc=$?
+
+ return $rc
+}
+
+info_vm()
+{
+ typeset -i rc=$ERROR_NONE
+ typeset    vm="$1"
+
+ virsh dominfo "$vm"
+ rc=$?
+
+ return $rc
+}
+
+# -----------------------------------------------------------
+# Find and execute the respective command
+# -----------------------------------------------------------
+
+execute_command()
+{
+ typeset -i rc=$ERROR_NONE
+ typeset    cmd="$1"
+
+ shift
+
+ case "$cmd" in
+		'start')   start_vm "$@";
+			   rc=$?;;
+
+		'stop')    stop_vm "$@";
+			   rc=$?;;
+
+		'status')  status_vm "$@";
+			   rc=$?;;
+
+		'info')    info_vm "$@";
+			   rc=$?;;
+
+		'connect') connect_vm "$@";
+			   rc=$?;;
+
+		*) 	   # Wrong invocation pattern, help user
+		           display_usage;; 
+ esac
+
+ return $rc
+}
+
+
+# -----------------------------------------------------------
+#  MAIN function
+# -----------------------------------------------------------
+
+main()
+{
+ typeset -i rc=1	# Assume error
+
+ if [ $# -lt 1 ]; then
+      display_usage
+ else
+      execute_command "$@"
+ fi
+
+ rc=$?
+
+ return $rc
+}
+
+# Call the main function
+main "$@"
+exit $?
+
