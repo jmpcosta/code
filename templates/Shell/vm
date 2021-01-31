@@ -11,23 +11,8 @@
 #
 # -----------------------------------------------------------
 
-
-
-# -----------------------------------------------------------
-#
-# Global Variables
-#
-# -----------------------------------------------------------
-
-
-
-# -----------------------------------------------------------
-#
-# Derived Variables
-#
-# -----------------------------------------------------------
-
-SCRIPT_NAME=$(basename "$0")
+# Uncomment next line for debugging 
+#set -x
 
 # -----------------------------------------------------------
 #
@@ -37,6 +22,42 @@ SCRIPT_NAME=$(basename "$0")
 
 # Error codes
 ERROR_NONE=0
+
+# Definition of possible VM types
+
+VM_NONE=0
+VM_KVM=1
+
+# -----------------------------------------------------------
+#
+# Global Variables
+#
+# -----------------------------------------------------------
+
+# Which VM types are we trying to manage
+VM_TYPE=${VM_TYPE:-1}		# KVM
+
+# -----------------------------------------------------------
+#
+# Derived Variables
+#
+# -----------------------------------------------------------
+
+SCRIPT_NAME=$(basename "$0")
+
+# KVM related
+if [ $VM_TYPE -eq $VM_KVM ]; then
+
+     VM_CMD_START="virsh  start"
+     VM_CMD_STOP="virsh   shutdown"
+     VM_CMD_KILL="virsh   destroy"
+     VM_CMD_INFO="virsh   dominfo"
+     VM_CMD_STATUS="virsh list --all"
+     VM_CMD_CONN="virt-viewer -f"
+
+     VM_STATUS_VMFIELD="2"
+     VM_STATUS_HEADERMAX="2"
+fi
 
 # -----------------------------------------------------------
 #
@@ -52,7 +73,7 @@ ERROR_NONE=0
 # Inform the operator about the script command line options
 # -----------------------------------------------------------
 
-display_usage()
+vm_display_usage()
 {
  printf "\n\t${SCRIPT_NAME}\t[ start | stop | status | info | connect ] <VM name>\n"
  printf "\n\tWhere:\n"
@@ -77,74 +98,120 @@ display_usage()
 
 
 
-connect_vm()
+
+# ---------------------------------
+# Connect to an already running VM
+# ---------------------------------
+
+vm_connect()
 {
  typeset    vm="$1"
 
- virt-viewer -f "$vm" &
+ ${VM_CMD_CONN} "$vm" &
 
  return $?
 }
 
-start_vm()
+
+# ---------------------------------
+# Start a specific VM
+# ---------------------------------
+
+vm_start()
 {
  typeset -i rc=$ERROR_NONE
  typeset    vm="$1"
 
- virsh start "$vm"
+ ${VM_CMD_START} "$vm"
  rc=$?
 
  # If VM started, connect to it
  if [ $rc -eq 0 ]; then 
-      connect_vm "$vm"
+      vm_connect "$vm"
       rc=$?
  fi
 
  return $rc
 }
 
-stop_vm()
+
+# ---------------------------------
+# Request a VM termination, nicely
+# ---------------------------------
+
+vm_stop()
 {
  typeset -i rc=$ERROR_NONE
  typeset    vm="$1"
 
- virsh shutdown "$vm"
+ ${VM_CMD_STOP} "$vm"
  rc=$?
 
  return $rc
 }
 
-status_vm()
+
+
+# ---------------------------------
+# Forcefully terminate a VM
+# ---------------------------------
+
+vm_kill()
 {
  typeset -i rc=$ERROR_NONE
  typeset    vm="$1"
 
+ ${VM_CMD_KILL} "$vm"
+ rc=$?
+
+ return $rc
+}
+
+
+# --------------------------------------
+# Display the status of one or all VMs
+# --------------------------------------
+
+vm_status()
+{
+ typeset -i rc=$ERROR_NONE
+ typeset    vm="$1"
+
+ echo
  if [ -z "$vm" ]; then
-      vm="--all"
+      ${VM_CMD_STATUS}
+      rc=$?
+ else
+      ${VM_CMD_STATUS} | awk -vfield=$VM_STATUS_VMFIELD -vheader_max=$VM_STATUS_HEADERMAX -vvm_name="$vm" 'NR<=header_max || $field==vm_name' 
+      rc=$?
+      echo
  fi
 
- virsh list "$vm"
- rc=$?
-
  return $rc
 }
 
-info_vm()
+
+# --------------------------------------
+# Get information about a VM
+# --------------------------------------
+
+vm_info()
 {
  typeset -i rc=$ERROR_NONE
  typeset    vm="$1"
 
- virsh dominfo "$vm"
+ ${VM_CMD_INFO} "$vm"
  rc=$?
 
  return $rc
 }
+
 
 # -----------------------------------------------------------
 # Find and execute the respective command
 # -----------------------------------------------------------
 
-execute_command()
+vm_execute_command()
 {
  typeset -i rc=$ERROR_NONE
  typeset    cmd="$1"
@@ -152,19 +219,22 @@ execute_command()
  shift
 
  case "$cmd" in
-		'start')   start_vm "$@";
+		'start')   vm_start "$@";
 			   rc=$?;;
 
-		'stop')    stop_vm "$@";
+		'stop')    vm_stop "$@";
 			   rc=$?;;
 
-		'status')  status_vm "$@";
+		'kill')    vm_kill "$@";
 			   rc=$?;;
 
-		'info')    info_vm "$@";
+		'status')  vm_status "$@";
 			   rc=$?;;
 
-		'connect') connect_vm "$@";
+		'info')    vm_info "$@";
+			   rc=$?;;
+
+		'connect') vm_connect "$@";
 			   rc=$?;;
 
 		*) 	   # Wrong invocation pattern, help user
@@ -184,9 +254,9 @@ main()
  typeset -i rc=1	# Assume error
 
  if [ $# -lt 1 ]; then
-      display_usage
+      vm_display_usage
  else
-      execute_command "$@"
+      vm_execute_command "$@"
  fi
 
  rc=$?
