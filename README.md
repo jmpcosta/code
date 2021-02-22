@@ -1,2 +1,2 @@
 # code
-Code examples and templates
+Code examples, small projects and various templates.
