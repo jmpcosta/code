@@ -11,6 +11,9 @@
 #ifndef ACONV_SYSVE_H_
 #define ACONV_SYSVE_H_
 
+// Include Standard C headers
+#include <limits.h>
+
 // Include master header file for Intel Intrinsics
 #include <immintrin.h>
 
@@ -34,7 +37,7 @@
 
 // Define the Vector extensions types and respective functions
 
-#ifdef __AVX512f__
+#ifdef __AVX512F__
 
  #define VECTOR				512				// Use Vector operations
  #define ACONV_REGSIZE		64				// Number of bytes in 512 bits
@@ -63,14 +66,16 @@
  #define VCMPEQ64(a,b)		_mm512_cmpeq_epi64_mask(a,b)
 
  // Relation operations
- #define VAND(a,b)			_mm512_and_si512(a,b)
- #define VOR(a,b)			_mm512_or_si512(a,b)
+ #define VAND(a,b)			(a & b)
+ #define VOR(a,b)			(a | b)
 
  // Bit wise operations
- #define VXOR(a,b)			_mm512_xor_si512(a,b)
+ #define VXOR(a,b)			(a ^ b)
 
  // Selection operations
- #define VBLEND(a,b,m)		_mm512_blendv_epi8(a,b,m)
+ #define VBLEND(a,b,m)		_mm512_mask_blend_epi8(m,a,b)
+
+ #define XOR_SETBITS(x)		{x = ULLONG_MAX; }
 
  // Specific function call
  #define TO_UPPER(x,y)		to_upper_vector(x,y)
@@ -112,6 +117,8 @@
 
  // Bit wise operations
  #define VXOR(a,b)			_mm256_xor_si256(a,b)
+
+ #define XOR_SETBITS(x)		{x = VSET_ZERO(); x=VCMPEQ64(x,x); }
 
  // Selection operations
  #define VBLEND(a,b,m)		_mm256_blendv_epi8(a,b,m)
@@ -156,6 +163,8 @@
 
  // Bit wise operations
  #define VXOR(a,b)			_mm_xor_si128(a,b)
+
+ #define XOR_SETBITS(x)		{x = VSET_ZERO(); x=VCMPEQ64(x,x); }
 
  // Selection operations
  #define VBLEND(a,b,m)		_mm_blendv_epi8(a,b,m)		// SSE4.1

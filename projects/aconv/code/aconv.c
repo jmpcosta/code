@@ -50,7 +50,7 @@ _Static_assert( _POSIX_VERSION == 200809L, "Wrong POSIX version" );
  regType		delta;	//	'a'-'A'
  regType		base;	//	'a' -1
  regType		top;	//	'z'
- regType		xor;	//	To use for the Xor
+ maskType		xor;	//	To use for the Xor
 
 #endif
 
@@ -119,8 +119,7 @@ void init( char b, char t )
   top   = VSET1  	( t 						);
 
   // All bits set to 1
-  xor	= VSET_ZERO	();
-  xor	= VCMPEQ64	( xor, xor );
+  XOR_SETBITS( xor )
 }
 
 
@@ -137,7 +136,7 @@ void init( char b, char t )
 inline void to_upper_vector( char * line, size_t lineSize )
 {
  regType	data, data1;		// Register holding data derived from the input line
- regType	in_range, amask;	// Bitmasks
+ maskType	in_range, amask;	// Bitmasks
 
   int i=0;
   for( ; i+ACONV_REGSIZE <= lineSize; )
