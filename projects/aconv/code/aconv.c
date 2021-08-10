@@ -40,7 +40,6 @@ _Static_assert( _POSIX_VERSION == 200809L, "Wrong POSIX version" );
 
 
 
-
 // *****************************************************************************************
 //
 // Section: Global variables
@@ -83,10 +82,10 @@ void display_usage( char * progname )
 
 // *****************************************************************************************
 //
-// Purpose: Display operator help information
+// Purpose: Return the current CPU vector size
 // Input:	None
 // Output:	None
-// Return:	None
+// Return:	Vector size in bytes
 //
 // *****************************************************************************************
 
@@ -108,8 +107,8 @@ size_t get_vector_size( void )
 
 // *****************************************************************************************
 //
-// Purpose: Display operator help information
-// Input:	None
+// Purpose: Initializes the static vectors
+// Input:	Initialization characters
 // Output:	None
 // Return:	None
 //
@@ -137,7 +136,7 @@ void init( char b, char t )
 //
 // *****************************************************************************************
 
-void to_upper_vector( char * line, size_t lineSize )
+inline void to_upper_vector( char * line, size_t lineSize )
 {
  regType	data, data1;		// Register holding data derived from the input line
  regType	in_range, amask;	// Bitmasks
@@ -190,7 +189,7 @@ void to_upper_vector( char * line, size_t lineSize )
 //
 // *****************************************************************************************
 
-void to_lower_vector( char * line, size_t lineSize )
+inline void to_lower_vector( char * line, size_t lineSize )
 {
   regType	data, data1;		// Register holding data derived from the input line
   regType	in_range, amask;	// Bitmasks
@@ -233,7 +232,9 @@ void to_lower_vector( char * line, size_t lineSize )
 
 }
 
-#endif
+
+#else
+
 
 
 // *****************************************************************************************
@@ -245,7 +246,7 @@ void to_lower_vector( char * line, size_t lineSize )
 //
 // *****************************************************************************************
 
-void to_upper_novector( char * line, size_t lineSize )
+inline void to_upper_novector( char * line, size_t lineSize )
 {
   for( int i=0; i < lineSize; i++ )
      {
@@ -264,7 +265,7 @@ void to_upper_novector( char * line, size_t lineSize )
 //
 // *****************************************************************************************
 
-void to_lower_novector( char * line, size_t lineSize )
+inline void to_lower_novector( char * line, size_t lineSize )
 {
   for( int i=0; i < lineSize; i++ )
      {
@@ -272,6 +273,9 @@ void to_lower_novector( char * line, size_t lineSize )
 	  line[i] += ACONV_INIT_DELTA * (line[i]> ACONV_UPPER_BASE && line[i] <= ACONV_UPPER_TOP );
      }
 }
+
+
+#endif
 
 // *****************************************************************************************
 //

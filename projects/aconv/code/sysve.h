@@ -34,7 +34,7 @@
 
 #ifdef __AVX512f__
 
- #define VECTOR								// Use Vector operations
+ #define VECTOR				512				// Use Vector operations
  #define ACONV_REGSIZE		64				// Number of bytes in 512 bits
  #define regType			__m512i			// AVX512 register type
 
@@ -73,10 +73,11 @@
  #define TO_UPPER(x,y)		to_upper_vector(x,y)
  #define TO_LOWER(x,y)		to_lower_vector(x,y)
 
+ #pragma message("Compiling for AVX512")
 
 #elif defined __AVX2__
 
- #define VECTOR								// Use Vector operations
+ #define VECTOR				256				// Use Vector operations
  #define ACONV_REGSIZE		32				// Number of bytes in 256 bits
  #define regType			__m256i			// AVX2 register type
 
@@ -115,9 +116,11 @@
  #define TO_UPPER(x,y)		to_upper_vector(x,y)
  #define TO_LOWER(x,y)		to_lower_vector(x,y)
 
+ #pragma message "Compiling for AVX2"
+
 #elif defined __AVX__
 
- #define VECTOR								// Use Vector operations
+ #define VECTOR				128				// Use Vector operations
  #define ACONV_REGSIZE		16				// Number of bytes in 128 bits
  #define regType			__m128i			// AVX register type
 
@@ -156,6 +159,8 @@
  #define TO_UPPER(x,y)		to_upper_vector(x,y)
  #define TO_LOWER(x,y)		to_lower_vector(x,y)
 
+ #pragma message("Compiling for AVX")
+
 #else
 
  #define ACONV_REGSIZE		0
@@ -165,6 +170,8 @@
  // Specific function call
  #define TO_UPPER(x,y)		to_upper_novector(x,y)
  #define TO_LOWER(x,y)		to_lower_novector(x,y)
+
+ #pragma message("No vector extensions available!")
 
 #endif
 
