@@ -11,6 +11,8 @@
 #ifndef ACONV_SYSVE_H_
 #define ACONV_SYSVE_H_
 
+// Include master header file for Intel Intrinsics
+#include <immintrin.h>
 
 // *****************************************************************************************
 //
@@ -37,6 +39,7 @@
  #define VECTOR				512				// Use Vector operations
  #define ACONV_REGSIZE		64				// Number of bytes in 512 bits
  #define regType			__m512i			// AVX512 register type
+ #define maskType			__mmask64		// Mask is different in AVX512
 
  // Macros for Vector operations (alias for concrete functions)
 
@@ -55,13 +58,13 @@
  #define VSUB(a,b)			_mm512_sub_epi8(a,b)
 
  // Compare macros
- #define VCMPGT(a,b)		_mm512_cmpgt_epi8(a,b)
- #define VCMPEQ(a,b)		_mm512_cmpeq_epi8(a,b)
- #define VCMPEQ64(a,b)		_mm512_cmpeq_epi64(a,b)
+ #define VCMPGT(a,b)		_mm512_cmpgt_epi8_mask(a,b)
+ #define VCMPEQ(a,b)		_mm512_cmpeq_epi8_mask(a,b)
+ #define VCMPEQ64(a,b)		_mm512_cmpeq_epi64_mask(a,b)
 
  // Relation operations
  #define VAND(a,b)			_mm512_and_si512(a,b)
- #define VOR(a,b)			_mm512_and_si512(a,b)
+ #define VOR(a,b)			_mm512_or_si512(a,b)
 
  // Bit wise operations
  #define VXOR(a,b)			_mm512_xor_si512(a,b)
@@ -80,6 +83,7 @@
  #define VECTOR				256				// Use Vector operations
  #define ACONV_REGSIZE		32				// Number of bytes in 256 bits
  #define regType			__m256i			// AVX2 register type
+ #define maskType			__m256i			// Mask is the same as the regType in AVX2
 
  // Macros for Vector operations (alias for concrete functions)
 
@@ -104,7 +108,7 @@
 
  // Relation operations
  #define VAND(a,b)			_mm256_and_si256(a,b)
- #define VOR(a,b)			_mm256_and_si256(a,b)
+ #define VOR(a,b)			_mm256_or_si256(a,b)
 
  // Bit wise operations
  #define VXOR(a,b)			_mm256_xor_si256(a,b)
@@ -123,6 +127,7 @@
  #define VECTOR				128				// Use Vector operations
  #define ACONV_REGSIZE		16				// Number of bytes in 128 bits
  #define regType			__m128i			// AVX register type
+ #define maskType			__m256i			// Mask is the same as the regType in AVX
 
  // Macros for Vector operations (alias for concrete functions)
 
@@ -147,7 +152,7 @@
 
  // Relation operations
  #define VAND(a,b)			_mm_and_si128(a,b)
- #define VOR(a,b)			_mm_and_si128(a,b)
+ #define VOR(a,b)			_mm_or_si128(a,b)
 
  // Bit wise operations
  #define VXOR(a,b)			_mm_xor_si128(a,b)

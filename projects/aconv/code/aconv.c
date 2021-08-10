@@ -29,8 +29,6 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-// Include master header file for Intel Intrinsics
-#include <immintrin.h>
 
 _Static_assert( _POSIX_VERSION == 200809L, "Wrong POSIX version" );
 
@@ -192,7 +190,7 @@ inline void to_upper_vector( char * line, size_t lineSize )
 inline void to_lower_vector( char * line, size_t lineSize )
 {
   regType	data, data1;		// Register holding data derived from the input line
-  regType	in_range, amask;	// Bitmasks
+  maskType	in_range, amask;	// Bitmasks
 
   int i=0;
   for( ; i+ACONV_REGSIZE <= lineSize; )
@@ -296,7 +294,6 @@ void to_upper( void )
 
   while( ( size = getline( &p_line, &len, stdin )) != -1 )
        {
-         //rc = to_upper( p_line, (size_t) size, vs, p_delta, p_base, p_top );
 	     TO_UPPER( p_line, (size_t) size );
          printf( "%s", p_line );
        }
@@ -327,7 +324,6 @@ void to_lower( void )
 
   while( ( size = getline( &p_line, &len, stdin )) != -1 )
        {
-         //rc = to_upper( p_line, (size_t) size, vs, p_delta, p_base, p_top );
 	     TO_LOWER( p_line, (size_t) size );
          printf( "%s", p_line );
        }
