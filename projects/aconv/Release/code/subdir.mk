@@ -17,7 +17,7 @@ C_DEPS += \
 code/%.o: ../code/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C Compiler'
-	gcc -std=c11 -O2 -Wall -c -fmessage-length=0 -mavx512f -mavx512bw -v -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	gcc -std=c11 -O2 -Wall -c -fmessage-length=0 -march=native -v -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
